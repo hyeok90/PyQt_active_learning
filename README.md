@@ -2,8 +2,6 @@
 
 This is a GUI-based image annotation tool developed with Python and PyQt5, designed for efficient object segmentation tasks. It leverages YOLOv8-seg models to implement an active learning workflow, significantly speeding up the labeling process.
 
-![image](https://github.com/user-attachments/assets/b3f73189-7153-4111-85ba-f1183a08e59b)
-
 
 ## ✨ Features
 
@@ -34,8 +32,8 @@ The main dependencies are listed in `requirements.txt`.
 
 1.  **Clone the repository:**
     ```bash
-    git clone <your-repository-url>
-    cd <repository-directory>
+    git clone https://github.com/hyeok90/PyQt_active_learning
+    cd PyQt_active_learning
     ```
 
 2.  **Install PyTorch:**
@@ -62,10 +60,10 @@ The main dependencies are listed in `requirements.txt`.
     ```
 
 2.  **Workflow:**
-    - **1. Load Model:** Click the `1. Load Model (.pt)` button to load your trained YOLOv8 segmentation model.
+    - **1. Load Model:** Click the `1. Load Model (.pt)` button to load your trained YOLOv11 segmentation model.
     - **2. Open Image Folder:** Click `2. Open Image Folder` to open a directory containing your images. The tool assumes the following structure:
       ```
-      - /your_folder/
+      - /PyQt_active_learning/
         - /images/
           - image1.jpg
           - image2.png
