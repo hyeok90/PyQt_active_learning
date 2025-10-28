@@ -1,0 +1,7 @@
+PyQt5
+numpy
+rdp
+opencv-python-headless
+ultralytics
+torch
+torchvision
