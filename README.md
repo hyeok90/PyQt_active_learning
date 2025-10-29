@@ -5,9 +5,9 @@ This is a GUI-based image annotation tool developed with Python and PyQt5, desig
 
 ## ✨ Features
 
-- **🧠 Active Learning:** Automatically pre-annotates images without labels using a loaded YOLOv8-seg model.
+- **🧠 Active Learning:** Automatically pre-annotates images without labels using a loaded YOLOv11-seg model.
 - **🖋️ Polygon Annotation:** Supports creating, editing, and deleting polygon-shaped annotations with intuitive mouse controls.
-- **🤖 YOLOv8 Model Integration:** Easily loads custom-trained YOLOv8-seg `.pt` models for inference and fine-tuning.
+- **🤖 YOLOv11 Model Integration:** Easily loads custom-trained YOLOv11-seg `.pt` models for inference and fine-tuning.
 - **🚀 Model Fine-Tuning:** 
     - A dedicated dialog allows for detailed configuration of hyperparameters for training (e.g., epochs, batch size, learning rate, optimizer).
     - Supports extensive data augmentation options (geometry, color, etc.).
@@ -65,7 +65,7 @@ The main dependencies are listed in `requirements.txt`.
     ```
 
 2.  **Workflow:**
-    - **1. Load Model:** Click `1. Load Model (.pt)` to load your trained YOLOv8 segmentation model.
+    - **1. Load Model:** Click `1. Load Model (.pt)` to load your trained YOLOv11 segmentation model.
     - **2. Open Image Folder:** Click `2. Open Image Folder` to open a directory containing your images.
     - **3. Annotate & Review:** Navigate through images (`A`/`D`), modify auto-generated labels, or create new ones (`W`). Changes are saved automatically or manually (`Ctrl+S`).
     - **4. Fine-Tune Model:** Click `Train`, select your dataset's `.yaml` file, adjust hyperparameters, and start training. Monitor the progress in the console where you launched the application.
