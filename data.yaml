@@ -1,0 +1,16 @@
+path: <route to dataset>
+
+# 데이터셋 폴더 (path 기준 상대 경로)
+train: train/images
+val: valid/images
+test: test/images
+
+# 클래스 이름 (필수 수정!)
+names:
+  0: dish
+  1: spoon
+  2: chopstick
+  3: tissue
+  4: shaker
+  5: can
+  6: sauce

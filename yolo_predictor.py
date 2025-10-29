@@ -67,3 +67,5 @@ class RealYOLOPredictor:
         
         return instances, (img_w, img_h), avg_conf
 
+    def train(self, **kwargs):
+        return self.model.train(**kwargs)

@@ -1,14 +1,19 @@
-# YOLOv8-seg Active Learning-based Annotation Tool
+# YOLO11-seg Active Learning-based Annotation Tool
 
-This is a GUI-based image annotation tool developed with Python and PyQt5, designed for efficient object segmentation tasks. It leverages YOLOv8-seg models to implement an active learning workflow, significantly speeding up the labeling process.
+This is a GUI-based image annotation tool developed with Python and PyQt5, designed for efficient object segmentation tasks. It leverages YOLOv11-seg models to implement an active learning workflow, significantly speeding up the labeling process.
 
 
 ## ✨ Features
 
 - **🧠 Active Learning:** Automatically pre-annotates images without labels using a loaded YOLOv8-seg model.
 - **🖋️ Polygon Annotation:** Supports creating, editing, and deleting polygon-shaped annotations with intuitive mouse controls.
-- **🤖 YOLO Model Integration:** Easily loads custom-trained YOLOv8-seg `.pt` models.
-- **📊 Confidence Score Visualization:** Displays the confidence score for each instance and the average score for the current image. Manually added instances are assigned a confidence of 1.0.
+- **🤖 YOLOv8 Model Integration:** Easily loads custom-trained YOLOv8-seg `.pt` models for inference and fine-tuning.
+- **🚀 Model Fine-Tuning:** 
+    - A dedicated dialog allows for detailed configuration of hyperparameters for training (e.g., epochs, batch size, learning rate, optimizer).
+    - Supports extensive data augmentation options (geometry, color, etc.).
+    - Training runs as a background process, with detailed logs printed directly to the console.
+    - Upon successful completion, the original model file is automatically updated with the newly trained best weights.
+- **📊 Confidence Score Visualization:** Displays the confidence score for each instance and the average score for the current image.
 - **↔️ Flexible Export:** Allows exporting all annotated images and labels to user-selected destination folders for images and labels separately.
 - **🖱️ User-Friendly Interface:**
   - Zoom in/out (mouse wheel) and pan (middle-click drag).
@@ -60,21 +65,11 @@ The main dependencies are listed in `requirements.txt`.
     ```
 
 2.  **Workflow:**
-    - **1. Load Model:** Click the `1. Load Model (.pt)` button to load your trained YOLOv11 segmentation model.
-    - **2. Open Image Folder:** Click `2. Open Image Folder` to open a directory containing your images. The tool assumes the following structure:
-      ```
-      - /PyQt_active_learning/
-        - /images/
-          - image1.jpg
-          - image2.png
-          ...
-      ```
-      If a corresponding `/labels/` directory does not exist, the tool will create it. For any images without a label file, it will perform prediction and save the results as a new label file.
-    - **3. Annotate & Review:**
-      - Navigate through images using `A` (previous) and `D` (next) keys.
-      - Modify auto-generated labels or create new ones using `W` to enter draw mode.
-      - Changes are saved automatically when you move to another image. You can also save manually with `Ctrl+S`.
-    - **4. Export:** Click `3. Export` to move all images and labels from the current session to separate destination folders of your choice. The workspace will be cleared after the export.
+    - **1. Load Model:** Click `1. Load Model (.pt)` to load your trained YOLOv8 segmentation model.
+    - **2. Open Image Folder:** Click `2. Open Image Folder` to open a directory containing your images.
+    - **3. Annotate & Review:** Navigate through images (`A`/`D`), modify auto-generated labels, or create new ones (`W`). Changes are saved automatically or manually (`Ctrl+S`).
+    - **4. Fine-Tune Model:** Click `Train`, select your dataset's `.yaml` file, adjust hyperparameters, and start training. Monitor the progress in the console where you launched the application.
+    - **5. Export:** Click `3. Export` to move all images and labels to separate destination folders. The workspace will be cleared after the export.
 
 ## ⌨️ Shortcuts
 

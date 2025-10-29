@@ -1,9 +1,10 @@
 import os
 import sys
+import shutil
 import cv2
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QAction, QFileDialog, 
-    QListWidget, QMessageBox, QDockWidget, QListWidgetItem, QInputDialog, QLabel, QMenu
+    QListWidget, QMessageBox, QDockWidget, QListWidgetItem, QInputDialog, QLabel, QMenu, QDialog, QDialogButtonBox
 )
 from PyQt5.QtGui import QPixmap, QIcon, QColor
 from PyQt5.QtCore import Qt, QPointF
@@ -11,15 +12,18 @@ from yolo_predictor import RealYOLOPredictor
 from image_viewer import ImageViewer
 from shape import Shape
 from utils import load_yolo_labels, save_yolo_labels
+from training_dialog import TrainingDialog
+from training_thread import TrainingThread
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         
-        self.setWindowTitle("YOLOv11-seg Active Learning Tool")
+        self.setWindowTitle("YOLOv8-seg Active Learning Tool")
         self.setGeometry(100, 100, 1200, 800)
         
         self.model = None
+        self.model_path = None
         self.image_paths = []
         self.current_image_index = -1
         self.class_names = []
@@ -48,6 +52,9 @@ class MainWindow(QMainWindow):
 
         self.export_action = QAction(QIcon.fromTheme("document-send"), "3. Export", self)
         self.export_action.triggered.connect(self.export_files)
+
+        self.train_action = QAction(QIcon.fromTheme("system-run"), "Train", self)
+        self.train_action.triggered.connect(self.open_training_dialog)
         
         self.save_labels_action = QAction(QIcon.fromTheme("document-save"), "Save Labels (Ctrl+S)", self)
         self.save_labels_action.triggered.connect(self.save_current_labels)
@@ -78,6 +85,7 @@ class MainWindow(QMainWindow):
         tool_bar.addAction(self.load_model_action)
         tool_bar.addAction(self.open_folder_action)
         tool_bar.addAction(self.export_action)
+        tool_bar.addAction(self.train_action)
         tool_bar.addSeparator()
         tool_bar.addAction(self.save_labels_action)
         tool_bar.addAction(self.undo_action)
@@ -118,6 +126,7 @@ class MainWindow(QMainWindow):
     def set_actions_enabled(self, enabled):
         self.open_folder_action.setEnabled(enabled)
         self.export_action.setEnabled(enabled)
+        self.train_action.setEnabled(enabled)
         self.save_labels_action.setEnabled(enabled)
         self.prev_image_action.setEnabled(enabled)
         self.next_image_action.setEnabled(enabled)
@@ -129,7 +138,8 @@ class MainWindow(QMainWindow):
         file_path, _ = QFileDialog.getOpenFileName(self, "Load YOLO Model", "", "PyTorch Models (*.pt)")
         if file_path:
             try:
-                self.model = RealYOLOPredictor(file_path)
+                self.model_path = file_path
+                self.model = RealYOLOPredictor(self.model_path)
                 class_map = self.model.get_class_names()
                 self.class_names = [class_map[i] for i in sorted(class_map.keys())]
                 self.class_list_widget.clear()
@@ -141,14 +151,10 @@ class MainWindow(QMainWindow):
                     color = QColor.fromHsv(int(i * hue_step), 200, 200)
                     self.color_map.append(color)
 
-                self.set_actions_enabled(True)
-                self.save_labels_action.setEnabled(False)
-                self.prev_image_action.setEnabled(False)
-                self.next_image_action.setEnabled(False)
-                self.draw_poly_action.setEnabled(False)
-                self.fit_window_action.setEnabled(False)
-                self.undo_action.setEnabled(False)
-                self.export_action.setEnabled(False)
+                self.set_actions_enabled(False)
+                self.load_model_action.setEnabled(True)
+                self.open_folder_action.setEnabled(True)
+                self.train_action.setEnabled(True)
                 
                 self.statusBar().showMessage(f"Model loaded: {os.path.basename(file_path)}")
             except Exception as e:
@@ -207,6 +213,46 @@ class MainWindow(QMainWindow):
                 self.set_actions_enabled(True)
                 self.open_folder_action.setEnabled(True)
                 self.load_model_action.setEnabled(True)
+
+    def open_training_dialog(self):
+        if not self.model:
+            QMessageBox.warning(self, "Warning", "Please load a model first.")
+            return
+
+        dialog = TrainingDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            params = dialog.get_parameters()
+            if not params['data']:
+                QMessageBox.warning(self, "Warning", "Dataset YAML file is required.")
+                return
+
+            self.training_thread = TrainingThread(self.model, params)
+            self.training_thread.training_finished.connect(self.on_training_finished)
+            self.training_thread.training_failed.connect(self.on_training_failed)
+            self.training_thread.start()
+            
+            self.train_action.setEnabled(False)
+            self.statusBar().showMessage("Training started... Logs will be shown in the console.")
+
+    def on_training_failed(self, error_msg):
+        QMessageBox.critical(self, "Training Failed", error_msg)
+        self.statusBar().showMessage("Training failed.", 5000)
+        self.train_action.setEnabled(True)
+
+    def on_training_finished(self, results):
+        self.train_action.setEnabled(True)
+        try:
+            best_model_path = os.path.join(results.save_dir, 'weights', 'best.pt')
+            if os.path.exists(best_model_path):
+                shutil.copy(best_model_path, self.model_path)
+                QMessageBox.information(self, "Training Complete", f"Model has been fine-tuned and updated: {self.model_path}")
+                self.model = RealYOLOPredictor(self.model_path)
+                self.statusBar().showMessage("Training complete. Model reloaded.", 5000)
+            else:
+                raise FileNotFoundError("best.pt not found in results directory.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to update model after training: {e}")
+            self.statusBar().showMessage("Error updating model.", 5000)
 
     def load_image_by_index(self, index):
         if not (0 <= index < len(self.image_paths)):
