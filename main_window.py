@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         
-        self.setWindowTitle("YOLOv8-seg Active Learning Tool")
+        self.setWindowTitle("YOLOv11-seg Active Learning Tool")
         self.setGeometry(100, 100, 1200, 800)
         
         self.model = None
