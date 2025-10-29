@@ -33,17 +33,10 @@ class TrainingDialog(QDialog):
         self.batch_spinbox.setRange(-1, 256)
         self.batch_spinbox.setValue(16)
 
-        self.imgsz_h_spinbox = QSpinBox()
-        self.imgsz_h_spinbox.setRange(32, 4096)
-        self.imgsz_h_spinbox.setSingleStep(32)
-        self.imgsz_h_spinbox.setValue(640)
-        self.imgsz_w_spinbox = QSpinBox()
-        self.imgsz_w_spinbox.setRange(32, 4096)
-        self.imgsz_w_spinbox.setSingleStep(32)
-        self.imgsz_w_spinbox.setValue(640)
-        imgsz_layout = QHBoxLayout()
-        imgsz_layout.addWidget(self.imgsz_h_spinbox)
-        imgsz_layout.addWidget(self.imgsz_w_spinbox)
+        self.imgsz_spinbox = QSpinBox()
+        self.imgsz_spinbox.setRange(32, 4096)
+        self.imgsz_spinbox.setSingleStep(32)
+        self.imgsz_spinbox.setValue(640)
 
         self.lr0_dspinbox = QDoubleSpinBox()
         self.lr0_dspinbox.setDecimals(5)
@@ -59,9 +52,6 @@ class TrainingDialog(QDialog):
         self.patience_spinbox.setRange(0, 1000)
         self.patience_spinbox.setValue(50)
 
-        self.rect_checkbox = QCheckBox("Rectangular Training")
-        self.rect_checkbox.setChecked(True)
-
         self.optimizer_combo = QComboBox()
         self.optimizer_combo.addItems(['auto', 'SGD', 'Adam', 'AdamW'])
 
@@ -70,9 +60,8 @@ class TrainingDialog(QDialog):
         self.training_layout.addWidget(QLabel("Batch Size:"), 0, 2)
         self.training_layout.addWidget(self.batch_spinbox, 0, 3)
 
-        self.training_layout.addWidget(QLabel("Image Size (h, w):"), 1, 0)
-        self.training_layout.addLayout(imgsz_layout, 1, 1)
-        self.training_layout.addWidget(self.rect_checkbox, 1, 2, 1, 2)
+        self.training_layout.addWidget(QLabel("Image Size:"), 1, 0)
+        self.training_layout.addWidget(self.imgsz_spinbox, 1, 1)
 
         self.training_layout.addWidget(QLabel("Optimizer:"), 2, 0)
         self.training_layout.addWidget(self.optimizer_combo, 2, 1)
@@ -182,12 +171,11 @@ class TrainingDialog(QDialog):
         return {
             'data': self.yaml_path_edit.text(),
             'epochs': self.epochs_spinbox.value(),
-            'imgsz': (self.imgsz_h_spinbox.value(), self.imgsz_w_spinbox.value()),
+            'imgsz': self.imgsz_spinbox.value(),
             'batch': self.batch_spinbox.value(),
             'lr0': self.lr0_dspinbox.value(),
             'lrf': self.lrf_dspinbox.value(),
             'patience': self.patience_spinbox.value(),
-            'rect': self.rect_checkbox.isChecked(),
             'optimizer': self.optimizer_combo.currentText(),
             'degrees': self.degrees_dspinbox.value(),
             'translate': self.translate_dspinbox.value(),
